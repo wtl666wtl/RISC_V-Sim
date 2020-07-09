@@ -4,9 +4,9 @@
 #include <iostream>
 #define N 1000006
 using namespace std;
-char s[16];
+char s[16];unsigned int reg[32],A,B,C;bool IR[32];
 const int endline[32]={0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,1,1};
-int pos,PC,NPC,IR[32],reg[32],A,B,C,rd,rs1,rs2,fun,fun2,Imm,Op,LMD,cond,ALUOut,Mem[N];
+int pos,PC,NPC,rd,rs1,rs2,fun,fun2,Imm,Op,LMD,cond,ALUOut,Mem[N];
 int getpos()
 {
 	int p=0;
@@ -241,6 +241,10 @@ void doOp9()
 }
 void IF()
 {
+	if(Mem[PC]==19&&Mem[PC+1]==5&&Mem[PC+2]==240&&Mem[PC+3]==15){
+		printf("%u\n",reg[10]&255u);
+		exit(0);
+	}
 	int t=Mem[PC+3],p=24;
 	memset(IR,0,sizeof(IR));
 	while(t){
@@ -321,29 +325,21 @@ void WB()
 	}
 	reg[0]=0;
 }
-bool isend()
-{
-	for(int i=0;i<=31;i++)if(IR[i]!=endline[31-i])return 0;
-	return 1;
-}
 int main()
 {
-//	freopen("array_test1.data","r",stdin);
+//	freopen("pi.data","r",stdin);
 	while(scanf("%s",s)!=EOF){
 		if(s[0]=='@')pos=getpos();
 		else Mem[pos]=getnum(),pos++;
-	}
-	while(1){
+	}int cnt=0;
+	while(1){cnt++;
 		IF();
-		if(isend()){
-			printf("%u\n",(unsigned int)(reg[10])&255u);
-			break;
-		}
 		ID();
 		EX();
 		MEM();
 		WB();
+		
 	//	printf("%u %u\n",(unsigned int)(reg[10]),(unsigned int)(reg[11]));
 	//	printf("%u %u\n",(unsigned int)(Mem[4480]),(unsigned int)(Mem[4481]));
-	}
+	}printf("%d\n",cnt);
 }
