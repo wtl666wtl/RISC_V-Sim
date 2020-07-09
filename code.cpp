@@ -327,7 +327,7 @@ void WB()
 }
 int main()
 {
-	freopen("bulgarian.data","r",stdin);
+//	freopen("bulgarian.data","r",stdin);
 	while(scanf("%s",s)!=EOF){
 		if(s[0]=='@')pos=getpos();
 		else Mem[pos]=getnum(),pos++;
