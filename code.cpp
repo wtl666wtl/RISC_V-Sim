@@ -4,9 +4,9 @@
 #include <iostream>
 #define N 1000006
 using namespace std;
-char s[16];unsigned int reg[32],A,B,C;bool IR[32];
+char s[16];bool IR[32];
 const int endline[32]={0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,1,1};
-int pos,PC,NPC,rd,rs1,rs2,fun,fun2,Imm,Op,LMD,cond,ALUOut,Mem[N];
+int pos,PC,NPC,rd,rs1,rs2,reg[32],A,B,C,fun,fun2,Imm,Op,LMD,cond,ALUOut,Mem[N];
 int getpos()
 {
 	int p=0;
@@ -203,7 +203,7 @@ void doOp8()
 	}else if(fun==1){
 		ALUOut=B<<Imm;
 	}else if(fun==101&&Imm/(1<<6)==0){
-		ALUOut=B>>Imm;
+		ALUOut=(unsigned int)B>>Imm;
 	}else if(fun==101&&Imm/(1<<6)!=0){
 		int t=Imm%(1<<6);
 		ALUOut=B>>Imm;
@@ -227,9 +227,9 @@ void doOp9()
 	}else if(fun==100){
 		ALUOut=B^C;
 	}else if(fun==101&&fun2==0){
-		ALUOut=B>>((unsigned int)C%(1<<5));
+		ALUOut=(unsigned int)B>>((unsigned int)C%(1<<5));
 	}else if(fun==101&&fun2!=0){
-		ALUOut=B>>((unsigned int)C%(1<<5));
+		ALUOut=(unsigned int)B>>((unsigned int)C%(1<<5));
 		if((unsigned int)B&(1<<31)){
 			for(int i=0;i<(unsigned int)C%(1<<5);i++)ALUOut+=(1<<(31-i));
 		}
@@ -327,19 +327,18 @@ void WB()
 }
 int main()
 {
-//	freopen("pi.data","r",stdin);
+	freopen("bulgarian.data","r",stdin);
 	while(scanf("%s",s)!=EOF){
 		if(s[0]=='@')pos=getpos();
 		else Mem[pos]=getnum(),pos++;
-	}int cnt=0;
-	while(1){cnt++;
+	}
+	while(1){
 		IF();
 		ID();
 		EX();
 		MEM();
 		WB();
-		
 	//	printf("%u %u\n",(unsigned int)(reg[10]),(unsigned int)(reg[11]));
 	//	printf("%u %u\n",(unsigned int)(Mem[4480]),(unsigned int)(Mem[4481]));
-	}printf("%d\n",cnt);
+	}
 }
