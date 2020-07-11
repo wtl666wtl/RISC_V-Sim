@@ -6,7 +6,8 @@
 #define uint unsigned int
 using namespace std;
 char s[16];
-int pos,PC,MEM_num,Mem[N],reg[32],reg_num[32],fc[N];
+int tot,yes;
+int pos,PC,MEM_num,Mem[N],reg[32],reg_num[32],fc[N][16],his[N];
 bool WB_oc,MEM_oc,EX_oc,ID_oc,isend;
 int getpos()
 {
@@ -119,64 +120,76 @@ void preR()
 	tmp.fun2=0;
 	for(int i=31;i>=25;i--)tmp.fun2=tmp.fun2*10+IF_ID.IR[i];
 }
-void deal_fc(int pc,int f)
+void deal_fc(int pc,int h,int f)
 {
 	if(f){
-		fc[pc]=min(fc[pc]+1,3);
+		fc[pc][h]=min(fc[pc][h]+1,3);
 	}else{
-		fc[pc]=max(fc[pc]-1,0);
+		fc[pc][h]=max(fc[pc][h]-1,0);
 	}
 }
 void doOp5(date x)
 {
-	int fun=x.fun,B=x.B,C=x.C,pc=x.pc,Imm=x.Imm;
+	int fun=x.fun,B=x.B,C=x.C,pc=x.pc,Imm=x.Imm;tot++;
 	if(fun==0){
 		if(B==C){
-			if(!x.forecast)PC=pc+Imm,ID_oc=0;
-			deal_fc(x.pc,1);
+			if(!x.forecast)PC=pc+Imm,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],1);
+			his[x.pc]=((his[x.pc]<<1)&0xF)+1;
 		}else{
-			if(x.forecast)PC=pc+4,ID_oc=0;
-			deal_fc(x.pc,0);
+			if(x.forecast)PC=pc+4,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],0);
+			his[x.pc]=((his[x.pc]<<1)&0xF);
 		}
 	}else if(fun==1){
 		if(B!=C){
-			if(!x.forecast)PC=pc+Imm,ID_oc=0;
-			deal_fc(x.pc,1);
+			if(!x.forecast)PC=pc+Imm,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],1);
+			his[x.pc]=((his[x.pc]<<1)&0xF)+1;
 		}else{
-			if(x.forecast)PC=pc+4,ID_oc=0;
-			deal_fc(x.pc,0);
+			if(x.forecast)PC=pc+4,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],0);
+			his[x.pc]=((his[x.pc]<<1)&0xF);
 		}
 	}else if(fun==100){
 		if(B<C){
-			if(!x.forecast)PC=pc+Imm,ID_oc=0;
-			deal_fc(x.pc,1);
+			if(!x.forecast)PC=pc+Imm,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],1);
+			his[x.pc]=((his[x.pc]<<1)&0xF)+1;
 		}else{
-			if(x.forecast)PC=pc+4,ID_oc=0;
-			deal_fc(x.pc,0);
+			if(x.forecast)PC=pc+4,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],0);
+			his[x.pc]=((his[x.pc]<<1)&0xF);
 		}
 	}else if(fun==101){
 		if(B>=C){
-			if(!x.forecast)PC=pc+Imm,ID_oc=0;
-			deal_fc(x.pc,1);
+			if(!x.forecast)PC=pc+Imm,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],1);
+			his[x.pc]=((his[x.pc]<<1)&0xF)+1;
 		}else{
-			if(x.forecast)PC=pc+4,ID_oc=0;
-			deal_fc(x.pc,0);
+			if(x.forecast)PC=pc+4,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],0);
+			his[x.pc]=((his[x.pc]<<1)&0xF);
 		}
 	}else if(fun==110){
 		if((uint)B<(uint)C){
-			if(!x.forecast)PC=pc+Imm,ID_oc=0;
-			deal_fc(x.pc,1);
+			if(!x.forecast)PC=pc+Imm,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],1);
+			his[x.pc]=((his[x.pc]<<1)&0xF)+1;
 		}else{
-			if(x.forecast)PC=pc+4,ID_oc=0;
-			deal_fc(x.pc,0);
+			if(x.forecast)PC=pc+4,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],0);
+			his[x.pc]=((his[x.pc]<<1)&0xF);
 		}
 	}else if(fun==111){
 		if((uint)B>=(uint)C){
-			if(!x.forecast)PC=pc+Imm,ID_oc=0;
-			deal_fc(x.pc,1);
+			if(!x.forecast)PC=pc+Imm,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],1);
+			his[x.pc]=((his[x.pc]<<1)&0xF)+1;
 		}else{
-			if(x.forecast)PC=pc+4,ID_oc=0;
-			deal_fc(x.pc,0);
+			if(x.forecast)PC=pc+4,ID_oc=0;else yes++;
+			deal_fc(x.pc,his[x.pc],0);
+			his[x.pc]=((his[x.pc]<<1)&0xF);
 		}
 	}
 }
@@ -218,21 +231,21 @@ void doOp7(date x)
 {
 	int t=x.M,fun=x.fun,C=x.C;
 	if(fun==0){
-		int tmp=(unsigned int)C%(1<<8);
+		int tmp=(uint)C%(1<<8);
 		Mem[t]=tmp;
 	}else if(fun==1){
-		int tmp=(unsigned int)C%(1<<8);
+		int tmp=(uint)C%(1<<8);
 		Mem[t]=tmp;
-		tmp=(unsigned int)C%(1<<16)/(1<<8);
+		tmp=(uint)C%(1<<16)/(1<<8);
 		Mem[t+1]=tmp;
 	}else if(fun==10){
-		int tmp=(unsigned int)C%(1<<8);
+		int tmp=(uint)C%(1<<8);
 		Mem[t]=tmp;
-		tmp=(unsigned int)C%(1<<16)/(1<<8);
+		tmp=(uint)C%(1<<16)/(1<<8);
 		Mem[t+1]=tmp;
-		tmp=(unsigned int)C%(1<<24)/(1<<16);
+		tmp=(uint)C%(1<<24)/(1<<16);
 		Mem[t+2]=tmp;
-		tmp=(unsigned int)C/(1<<24);
+		tmp=(uint)C/(1<<24);
 		Mem[t+3]=tmp;
 	}
 }
@@ -245,7 +258,7 @@ int doOp8(date x)
 	}else if(fun==10){
 		ALUOut=B<Imm;
 	}else if(fun==11){
-		ALUOut=(unsigned int)B<(unsigned int)Imm;
+		ALUOut=(uint)B<(uint)Imm;
 	}else if(fun==100){
 		ALUOut=B^Imm;
 	}else if(fun==110){
@@ -255,11 +268,11 @@ int doOp8(date x)
 	}else if(fun==1){
 		ALUOut=B<<Imm;
 	}else if(fun==101&&Imm/(1<<6)==0){
-		ALUOut=(unsigned int)B>>Imm;
+		ALUOut=(uint)B>>Imm;
 	}else if(fun==101&&Imm/(1<<6)!=0){
 		int t=Imm%(1<<6);
 		ALUOut=B>>Imm;
-		if((unsigned int)B&(1<<31)){
+		if((uint)B&(1<<31)){
 			for(int i=0;i<Imm;i++)ALUOut+=(1<<(31-i));
 		}
 	}
@@ -278,15 +291,15 @@ int doOp9(date x)
 	}else if(fun==10){
 		ALUOut=B<C;
 	}else if(fun==11){
-		ALUOut=(unsigned int)B<(unsigned int)C;
+		ALUOut=(uint)B<(uint)C;
 	}else if(fun==100){
 		ALUOut=B^C;
 	}else if(fun==101&&fun2==0){
-		ALUOut=(unsigned int)B>>((unsigned int)C%(1<<5));
+		ALUOut=(uint)B>>((uint)C%(1<<5));
 	}else if(fun==101&&fun2!=0){
-		ALUOut=(unsigned int)B>>((unsigned int)C%(1<<5));
-		if((unsigned int)B&(1<<31)){
-			for(int i=0;i<(unsigned int)C%(1<<5);i++)ALUOut+=(1<<(31-i));
+		ALUOut=(uint)B>>((uint)C%(1<<5));
+		if((uint)B&(1<<31)){
+			for(int i=0;i<(uint)C%(1<<5);i++)ALUOut+=(1<<(31-i));
 		}
 	}else if(fun==110){
 		ALUOut=B|C;
@@ -364,7 +377,7 @@ void ID()
 	}else if(op==4){
 		PC=(ID_EX.B+ID_EX.Imm)&~1;
 	}else if(op==5){
-		ID_EX.forecast=fc[ID_EX.pc]&2;
+		ID_EX.forecast=fc[ID_EX.pc][his[ID_EX.pc]]&2;
 		if(ID_EX.forecast)PC=ID_EX.pc+ID_EX.Imm;
 	}
 //	printf("%d %d %d  %d %d %d %d %d\n",op,ID_EX.pc,tmp.rd,tmp.rs1,tmp.rs2,ID_EX.B,ID_EX.C,ID_EX.Imm);
@@ -397,7 +410,7 @@ void MEM()
 	MEM_WB=EX_MEM;
 	int op=EX_MEM.Op;
 	if(op==6||op==7){
-		if(MEM_num<0)MEM_num++;
+		if(MEM_num<3)MEM_num++;
 		else{
 			if(op==6){
 				MEM_WB.A=doOp6(EX_MEM);
@@ -422,15 +435,14 @@ void WB()
 }
 int main()
 {
-//	freopen("pi.data","r",stdin);
+	//freopen("qsort.data","r",stdin);
 	while(scanf("%s",s)!=EOF){
 		if(s[0]=='@')pos=getpos();
 		else Mem[pos]=getnum(),pos++;
 	}
 	while(!isend||WB_oc||MEM_oc||EX_oc||ID_oc){
 		WB(),MEM(),EX(),ID(),IF();
-	//	printf("%d %d %d %d  %d\n",ID_oc,EX_oc,MEM_oc,WB_oc,MEM_num);
-		//for(int i=0;i<=31;i++)printf("%d ",reg_num[i]);puts("");
 	}
 	printf("%u\n",(uint)reg[10]&255u);
+	//printf("%lf\n",1.0*yes/tot);
 }
